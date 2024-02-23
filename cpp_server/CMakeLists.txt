@@ -56,8 +56,7 @@ include(cmake/CompilerWarnings.cmake)
 
 #! Project main executable source compilation
 add_executable(${PROJECT_NAME} main.cpp
-				options_parser/options_parser.cpp options_parser/options_parser.h
-				includes/crow.h)
+				options_parser/options_parser.cpp options_parser/options_parser.h)
 
 #! Put path to your project headers
 target_include_directories(${PROJECT_NAME} PRIVATE options_parser)
@@ -66,7 +65,18 @@ target_include_directories(${PROJECT_NAME} PRIVATE options_parser)
 # options_parser requires boost::program_options library
 find_package(Boost 1.71.0 COMPONENTS program_options system REQUIRED)
 target_include_directories(${PROJECT_NAME} PRIVATE ${Boost_INCLUDE_DIR})
-target_link_libraries(${PROJECT_NAME} Boost::program_options Boost::system)
+
+include(FetchContent)
+FetchContent_Declare(cpr GIT_REPOSITORY https://github.com/libcpr/cpr.git
+                         GIT_TAG 3b15fa82ea74739b574d705fea44959b58142eb8)
+FetchContent_MakeAvailable(cpr)
+
+FetchContent_Declare(Crow GIT_REPOSITORY https://github.com/CrowCpp/Crow.git
+                         GIT_TAG v1.1.0)
+FetchContent_MakeAvailable(Crow)
+
+target_link_libraries(${PROJECT_NAME} Boost::program_options Boost::system cpr::cpr Crow)
+
 
 ##########################################################
 # Fixed CMakeLists.txt part

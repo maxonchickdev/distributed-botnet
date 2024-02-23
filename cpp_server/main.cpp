@@ -3,13 +3,17 @@
 
 #include <iostream>
 
-#include "./includes/crow.h"
+#include <crow.h>
+#include <cpr/cpr.h>
 
 
 int main() {
     crow::SimpleApp app;
     CROW_ROUTE(app, "/")([](){
         return "Hello world";
+    });
+    CROW_ROUTE(app, "/hello/<int>")([](int count){
+        return crow::response(std::to_string(count));
     });
     app.port(8080)
     .multithreaded()
