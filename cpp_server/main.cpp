@@ -5,8 +5,8 @@
 
 
 #include "crow.h"
-#include "crow/middlewares/cors.h"
-// #include "./include/cpr/cpr.h"
+#include "include/crow/middlewares/cors.h"
+#include "include/cpr/cpr.h"
 
 
 int main() {
@@ -17,6 +17,8 @@ int main() {
       .global().headers("Origin", "Content-Type", "Accept", "*").methods("POST"_method, "GET"_method).prefix("/cors").origin("example.com").prefix("/nocors").ignore();
 
     CROW_ROUTE(app, "/")([](){
+        cpr::Response r = cpr::Get(cpr::Url{"https://643c27d14477945573689436.mockapi.io/items"});
+        std::cout << r.status_code << std::endl;
         return "Maxondevelop";
     });
 
