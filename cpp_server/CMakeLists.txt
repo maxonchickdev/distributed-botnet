@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.5)
 
 #! CHANGE YOUR PROJECT NAME
 #  It is used as your project's main executable name. 
-set(PROJECT_NAME cxx_perf_io)
+set(PROJECT_NAME master)
 project(${PROJECT_NAME} C CXX) # project(${PROJECT_NAME} C CXX ASM)
 
 set(CMAKE_CXX_STANDARD 20)
@@ -60,6 +60,7 @@ add_executable(${PROJECT_NAME} main.cpp
 
 #! Put path to your project headers
 target_include_directories(${PROJECT_NAME} PRIVATE options_parser)
+target_include_directories(${PROJECT_NAME} PRIVATE include)
 
 #! Add external packages
 # options_parser requires boost::program_options library
@@ -74,6 +75,10 @@ FetchContent_MakeAvailable(cpr)
 FetchContent_Declare(Crow GIT_REPOSITORY https://github.com/CrowCpp/Crow.git
                          GIT_TAG v1.1.0)
 FetchContent_MakeAvailable(Crow)
+
+find_package(SQLite3)
+include_directories(${SQLite3_INCLUDE_DIRS})
+target_link_libraries (${PROJECT_NAME} ${SQLite3_LIBRARIES})
 
 target_link_libraries(${PROJECT_NAME} Boost::program_options Boost::system cpr::cpr Crow)
 
