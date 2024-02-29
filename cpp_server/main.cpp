@@ -9,10 +9,10 @@
 #include <sqlite3.h>
 
 
-void connection(sqlite3* db, sqlite3_stmt* stmt) {
+void connection_to_db(sqlite3 *db, sqlite3_stmt *stmt) {
     int res_connecting;
     if (sqlite3_open("demo.db", &db) == SQLITE_OK) {
-        res_connecting = sqlite3_exec(db, "CREATE TABLE IF NOT EXISTS user(name varchar(50), roll INT, email varchar(80));", 0, 0, 0);
+        res_connecting = sqlite3_exec(db, "CREATE TABLE IF NOT EXISTS urls(id INTEGER PRIMARY KEY AUTOINCREMENT, url TEXT);", nullptr, nullptr, nullptr);
         
         if (res_connecting != SQLITE_OK) {
             std::cerr << "Error: " << sqlite3_errmsg(db) << std::endl;
@@ -28,13 +28,23 @@ void connection(sqlite3* db, sqlite3_stmt* stmt) {
     }
 }
 
+void push_url_to_db(sqlite3 *db, sqlite3_stmt *stmt, std::string url) {
+    std::string sqlite3_statement = "INSERT INTO urls(url) VALUES ('" + url + "')";
+    if(sqlite3_open("demo.db", &db) == SQLITE_OK) {
+        sqlite3_prepare(db, sqlite3_statement.c_str(), -1, &stmt, NULL);
+        sqlite3_step(stmt);
+    } else {
+        std::cerr << "Faild to open db" << std::endl;
+    }
+    sqlite3_finalize(stmt);
+    sqlite3_close(db);
+}
+
 int main()
 {
     sqlite3 *db;
     sqlite3_stmt *stmt;
-    connection(db, stmt);
-
-    sqlite3_close(db);
+    connection_to_db(db, stmt);
 
     crow::App<crow::CORSHandler> app;
 
@@ -44,19 +54,24 @@ int main()
         .headers("Origin", "Content-Type", "Accept", "*")
         .methods("POST"_method, "GET"_method)
         .prefix("/cors")
-        .origin("example.com")
+        .origin("http://localhost:8080")
         .prefix("/nocors")
         .ignore();
 
-    CROW_ROUTE(app, "/") ([]() {
-        cpr::Response r = cpr::Get(cpr::Url{"https://65df88a5ff5e305f32a26bdf.mockapi.io/destination/elements/"});
-        std::cout << r.text << std::endl;
-        return "Maxondevelop"; 
+    CROW_ROUTE(app, "/").methods("GET"_method)
+    ([]() {
+        return "Hello, bro";
     });
 
-    CROW_ROUTE(app, "/hello/<int>") ([](int count) { 
-        return crow::response(std::to_string(count));
+    CROW_ROUTE(app, "/get-url/").methods("POST"_method)
+    ([&db, &stmt](const crow::request &req)
+    {
+        std::string response_url = req.body;
+        push_url_to_db(db, stmt, response_url);
+        std::cout << response_url << std::endl;
+        return "Hello";
     });
+
 
     app.port(8080)
         .multithreaded()
