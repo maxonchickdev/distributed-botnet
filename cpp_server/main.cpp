@@ -7,6 +7,8 @@
 #include <crow/middlewares/cors.h>
 #include <cpr/cpr.h>
 #include <sqlite3.h>
+#include <string>
+#include <vector>
 
 
 void connection_to_db(sqlite3 *db, sqlite3_stmt *stmt) {
@@ -40,6 +42,27 @@ void push_url_to_db(sqlite3 *db, sqlite3_stmt *stmt, std::string url) {
     sqlite3_close(db);
 }
 
+std::vector<std::string> get_url_from_db(sqlite3 *db, sqlite3_stmt *stmt) {
+    std::vector<std::string> urls;
+    std::string sqlite3_data = "SELECT * FROM urls;";
+
+    if (sqlite3_open("demo.db", &db) == SQLITE_OK) {
+        if (sqlite3_prepare(db, sqlite3_data.c_str(), -1, &stmt, NULL) == SQLITE_OK) {
+            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                const unsigned char *url = sqlite3_column_text(stmt, 1);
+                urls.push_back(reinterpret_cast<const char *>(url));
+            }
+            sqlite3_finalize(stmt);
+        } else {
+            std::cerr << "Failed to prepare statement: " << sqlite3_errmsg(db) << std::endl;
+        }
+        sqlite3_close(db);
+    } else {
+        std::cerr << "Failed to open db" << std::endl;
+    }
+    return urls;
+}
+
 int main()
 {
     sqlite3 *db;
@@ -69,9 +92,17 @@ int main()
         std::string response_url = req.body;
         push_url_to_db(db, stmt, response_url);
         std::cout << response_url << std::endl;
-        return "Hello";
+        return response_url;
     });
 
+    CROW_ROUTE(app, "/url-to-bot/").methods("GET"_method)
+    ([&db, &stmt]() {
+        std::vector<std::string> response_data = get_url_from_db(db, stmt);
+        for(const auto &el: response_data) {
+            std::cout << el << std::endl;
+        }
+        return response_data.back();
+    });
 
     app.port(8080)
         .multithreaded()
