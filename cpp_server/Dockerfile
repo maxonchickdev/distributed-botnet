@@ -1,6 +1,6 @@
 FROM ubuntu:latest AS builder
 
-RUN apt-get update -y && apt-get install cmake build-essential libboost-all-dev git openssl libssl-dev python3 libasio-dev -y
+RUN apt-get update -y && apt-get install cmake build-essential libboost-all-dev git openssl libssl-dev python3 libasio-dev sqlite3 libsqlite3-dev -y
 
 WORKDIR /app/distribute_botnet
 
@@ -18,4 +18,4 @@ COPY --from=builder /app /app
 
 EXPOSE 8080
 
-ENTRYPOINT ["./bin/cxx_perf_io"]
+ENTRYPOINT ["./bin/master"]
