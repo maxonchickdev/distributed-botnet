@@ -56,6 +56,7 @@ std::vector<std::string> get_url_from_db(sqlite3 *db, sqlite3_stmt *stmt) {
         } else {
             std::cerr << "Failed to prepare statement: " << sqlite3_errmsg(db) << std::endl;
         }
+        sqlite3_finalize(stmt);
         sqlite3_close(db);
     } else {
         std::cerr << "Failed to open db" << std::endl;
