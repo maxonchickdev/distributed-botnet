@@ -37,6 +37,24 @@ void push_data(sqlite3 *db, sqlite3_stmt *stmt, std::string url) {
     sqlite3_close(db);
 }
 
+std::vector<std::string> get_data(sqlite3 *db, sqlite3_stmt *stmt) {
+    std::vector<std::string> data;
+    std::string query = "SELECT url FROM urls;";
+    if(sqlite3_open("demo.db", &db) == SQLITE_OK) {
+        int recived_data = sqlite3_prepare(db, query.c_str(), -1, &stmt, NULL);
+        sqlite3_step(stmt);
+        while((recived_data = sqlite3_step(stmt) == SQLITE_ROW)) {
+            std::cout << typeid(sqlite3_column_text(stmt, 0)).name() << std::endl;
+        }
+    } else {
+        std::cerr << "Faild to open db" << std::endl;
+    }
+    sqlite3_finalize(stmt);
+    sqlite3_close(db);
+
+    return data;
+}
+
 int main()
 {
     sqlite3 *db;
@@ -60,7 +78,7 @@ int main()
         });
 
     CROW_ROUTE(app, "/get-url/").methods("POST"_method)
-        ([db, stmt](const crow::request &req)
+        ([&db, &stmt](const crow::request &req)
         {
             connection(db, stmt);
             std::string response_url = req.body;
@@ -68,10 +86,10 @@ int main()
             return response_url;
         });
 
-    // CROW_ROUTE(app, "/url-to-bot/").methods("GET"_method)([&db, &stmt]() {
-    //     std::vector<std::string> response_data = get_url_from_db(&db, &stmt);
-    //     return response_data.back();
-    // });
+    CROW_ROUTE(app, "/url-to-bot/").methods("GET"_method)([&db, &stmt]() {
+        std::vector<std::string> response_data = get_data(db, stmt);
+        return response_data.back();
+    });
 
     app.port(8080)
         .multithreaded()
