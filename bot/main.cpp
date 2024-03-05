@@ -16,6 +16,7 @@
 #include <iostream>
 #include <string>
 #include <cpr/cpr.h>
+#include <thread>
 
 
 /**
@@ -31,18 +32,22 @@ int main(int argc, char* argv[]) {
 
     std::string URL = r.text;
 
-    std::cout << URL << std::endl;
-    std::cout << r.status_code << std::endl;
-
     int counter = 0;
 
-    for(int i = 0; i < 10; ++i) {
-        cpr::Response target_r = cpr::Get(cpr::Url{URL});
-        if(target_r.status_code != 200) {
-            break;
-        }
-        ++counter;
-        std::cout << "request " << i << " sending successfully" << std::endl;
+    for(int i = 0; i < 50; ++i) {
+        int wrap_counter = 0;
+        std::thread t([&URL, &counter, &i, &wrap_counter]() {
+            for(int j = 0; j < 100; ++j) {
+                cpr::Response target_r = cpr::Get(cpr::Url{URL});
+                if(target_r.status_code != 200) {
+                    break;
+                }
+                ++wrap_counter;
+                std::cout << "request " << j << " sending successfully " << ", thread " << i << std::endl;
+            }
+            counter += wrap_counter;
+        });
+        t.join();
     }
 
     std::cout << counter << std::endl;
