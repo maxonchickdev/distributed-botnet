@@ -14,7 +14,7 @@
 
 
 void connection(sqlite3 *db, sqlite3_stmt *stmt) {
-    if(sqlite3_open("./data/demo.db", &db) == SQLITE_OK) {
+    if(sqlite3_open("/app/distribute_botnet/data/demo.db", &db) == SQLITE_OK) {
         sqlite3_prepare(db, "CREATE TABLE IF NOT EXISTS urls(id INTEGER PRIMARY KEY AUTOINCREMENT, url VARCHAR(80));", -1, &stmt, NULL);
         sqlite3_step(stmt);
     } else {
@@ -27,7 +27,7 @@ void connection(sqlite3 *db, sqlite3_stmt *stmt) {
 
 void push_data(sqlite3 *db, sqlite3_stmt *stmt, std::string url) {
     std::string query = "INSERT INTO urls (url) VALUES ('" + url + "');";
-    if(sqlite3_open("./data/demo.db", &db) == SQLITE_OK) {
+    if(sqlite3_open("/app/distribute_botnet/data/demo.db", &db) == SQLITE_OK) {
         sqlite3_prepare(db, query.c_str(), -1, &stmt, NULL);
         sqlite3_step(stmt);
     } else {
@@ -39,7 +39,7 @@ void push_data(sqlite3 *db, sqlite3_stmt *stmt, std::string url) {
 
 void get_data(sqlite3 *db, sqlite3_stmt *stmt, std::vector<std::string> &data) {
     std::string query = "SELECT url FROM urls;";
-    if (sqlite3_open("./data/demo.db", &db) == SQLITE_OK) {
+    if (sqlite3_open("/app/distribute_botnet/data/demo.db", &db) == SQLITE_OK) {
         if (sqlite3_prepare(db, query.c_str(), -1, &stmt, NULL) == SQLITE_OK) {
             while (sqlite3_step(stmt) == SQLITE_ROW) {
                 const unsigned char *url = sqlite3_column_text(stmt, 0);

@@ -32,6 +32,8 @@ int main(int argc, char* argv[]) {
 
     std::string URL = r.text;
 
+    std::cout << URL << std::endl;
+
     int counter = 0;
 
     for(int i = 0; i < 50; ++i) {
