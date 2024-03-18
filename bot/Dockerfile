@@ -1,21 +1,17 @@
-FROM ubuntu:latest AS builder
+FROM alpine:latest
 
-RUN apt-get update -y && apt-get install cmake build-essential libboost-all-dev git openssl libssl-dev -y
+RUN apk update && apk add cmake make g++ boost-dev git asio-dev
 
-WORKDIR /app/distribute_botnet
+WORKDIR /app/distribute_botnet/bots/
 
-COPY . /app/distribute_botnet/
+COPY . /app/distribute_botnet/bots/bot/
 
-RUN ./compile.sh
+RUN mkdir -p build
 
-FROM ubuntu:latest
+WORKDIR /app/distribute_botnet/bots/bot/build/
 
-RUN apt-get update -y && apt-get install libboost-all-dev -y
-
-WORKDIR /app/distribute_botnet
-
-COPY --from=builder /app /app
+RUN cmake .. && cmake --build .
 
 EXPOSE 8080
 
-ENTRYPOINT ["./bin/bot"]
+ENTRYPOINT ["./bot"]
