@@ -56,7 +56,7 @@ include(cmake/CompilerWarnings.cmake)
 
 #! Project main executable source compilation
 add_executable(${PROJECT_NAME} main.cpp
-				options_parser/options_parser.cpp options_parser/options_parser.h)
+				options_parser/options_parser.cpp options_parser/options_parser.h src/task_for_thread.cpp include/task_for_thread.hpp include/managing_threads.hpp)
 
 #! Put path to your project headers
 target_include_directories(${PROJECT_NAME} PRIVATE options_parser)
@@ -74,6 +74,7 @@ FetchContent_MakeAvailable(cpr)
 target_link_libraries(${PROJECT_NAME} Boost::program_options Boost::system cpr::cpr)
 
 target_include_directories(${PROJECT_NAME} PRIVATE include)
+target_include_directories(${PROJECT_NAME} PRIVATE src)
 
 ##########################################################
 # Fixed CMakeLists.txt part

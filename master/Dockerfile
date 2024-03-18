@@ -1,21 +1,17 @@
-FROM ubuntu:latest AS builder
+FROM alpine:latest
 
-RUN apt-get update -y && apt-get install cmake build-essential libboost-all-dev git openssl libssl-dev python3 libasio-dev sqlite3 libsqlite3-dev -y
+RUN apk update && apk add cmake g++ make boost-dev git mbedtls-dev mbedtls-utils asio-dev sqlite-dev
 
-WORKDIR /app/distribute_botnet
+WORKDIR /app/distribute_botnet/master/
 
-COPY . /app/distribute_botnet/
+COPY . /app/distribute_botnet/master/
 
-RUN ./compile.sh
+RUN mkdir -p build
 
-FROM ubuntu:latest
+WORKDIR /app/distribute_botnet/master/build/
 
-RUN apt-get update -y && apt-get install libboost-all-dev -y
-
-WORKDIR /app/distribute_botnet
-
-COPY --from=builder /app /app
+RUN cmake .. && cmake --build .
 
 EXPOSE 8080
 
-ENTRYPOINT ["./bin/master"]
+ENTRYPOINT ["./master"]

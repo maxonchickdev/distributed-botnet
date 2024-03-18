@@ -1,4 +1,4 @@
-FROM node:18-alpine
+FROM node:16-alpine
 
 WORKDIR /app
 
@@ -8,7 +8,7 @@ RUN npm i -g pnpm
 
 RUN pnpm i
 
-COPY . .
+COPY . /app
 
 EXPOSE 5173
 
