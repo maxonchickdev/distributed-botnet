@@ -4,22 +4,40 @@
 #include <iostream>
 #include <mutex>
 #include <string>
+#include <map>
 #include <cpr/cpr.h>
 
-void task_for_thread(std::mutex &m, int &success_responces, int upper_bound_response, std::string URL)
+void task_for_thread(std::mutex &m, std::map<int, unsigned int> &success_responces_map, std::string URL)
 {
-	int counter = 0;
-	for (int i = 0; i < upper_bound_response; ++i)
+	int num_of_requets = 0;
+	std::map<int, unsigned int> status_codes;
+	do
 	{
-		cpr::Response inner_request = cpr::Get(cpr::Url{URL});
-		if (inner_request.status_code == 200)
+		cpr::Response request = cpr::Get(cpr::Url{URL});
+		if (status_codes.find(request.status_code) != status_codes.end())
 		{
-			std::cout << inner_request.status_code << std::endl;
-			++counter;
+			++status_codes[request.status_code];
 		}
-	}
+		else
+		{
+			status_codes.insert(std::make_pair(request.status_code, 1));
+		}
+		++num_of_requets;
+	} while (num_of_requets != 10);
 
 	m.lock();
-	success_responces += counter;
+
+	for (const auto &entry : status_codes)
+	{
+		success_responces_map.insert(std::make_pair(entry.first, entry.second));
+	}
+
+	for (const auto &entry : success_responces_map)
+	{
+		std::cout << entry.first << " : " << entry.second << std::endl;
+	}
+
 	m.unlock();
+
+	std::cout << std::endl;
 }
