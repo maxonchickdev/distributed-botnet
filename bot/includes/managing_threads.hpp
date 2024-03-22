@@ -4,17 +4,18 @@
 #include <mutex>
 #include <thread>
 #include <string>
+#include <map>
 
 template <typename TASK_FOR_THREAD>
-int managind_threads(TASK_FOR_THREAD worker, int num_of_workers, int num_of_requests, std::string URL)
+std::map<int, unsigned int> managind_threads(TASK_FOR_THREAD worker, int num_of_workers, std::string URL)
 {
-	int successfully = 0;
+	std::map<int, unsigned int> status_codes;
 	std::mutex m;
 	std::vector<std::thread> workers;
 
 	for (int i = 0; i < num_of_workers; ++i)
 	{
-		workers.emplace_back(worker, std::ref(m), std::ref(successfully), std::ref(num_of_requests), std::ref(URL));
+		workers.emplace_back(worker, std::ref(m), std::ref(status_codes), std::ref(URL));
 	}
 
 	for (int i = 0; i < workers.size(); ++i)
@@ -22,7 +23,7 @@ int managind_threads(TASK_FOR_THREAD worker, int num_of_workers, int num_of_requ
 		workers[i].join();
 	}
 
-	return successfully;
+	return status_codes;
 }
 
 #endif // MANAGING_THREADS_INCLUDE

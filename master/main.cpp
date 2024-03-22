@@ -106,5 +106,7 @@ int main()
         .multithreaded()
         .run();
 
+    system("./test.sh");
+
     return 0;
 }

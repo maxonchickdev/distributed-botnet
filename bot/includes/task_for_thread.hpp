@@ -3,7 +3,8 @@
 
 #include <mutex>
 #include <string>
+#include <map>
 
-void task_for_thread(std::mutex &m, int &success_responces, int upper_bound_response, std::string URL);
+void task_for_thread(std::mutex &m, std::map<int, unsigned int> &success_responces_map, std::string URL);
 
 #endif // TASK_FOR_THREAD_INCLUDE
