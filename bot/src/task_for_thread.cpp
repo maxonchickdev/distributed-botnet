@@ -5,39 +5,47 @@
 #include <mutex>
 #include <string>
 #include <map>
+#include <vector>
 #include <cpr/cpr.h>
 
 void task_for_thread(std::mutex &m, std::map<int, unsigned int> &success_responces_map, std::string URL)
 {
-	int num_of_requets = 0;
 	std::map<int, unsigned int> status_codes;
+	int bound = 0;
 	do
 	{
-		cpr::Response request = cpr::Get(cpr::Url{URL});
-		if (status_codes.find(request.status_code) != status_codes.end())
+		do
 		{
-			++status_codes[request.status_code];
-		}
-		else
+			cpr::Response request = cpr::Get(cpr::Url{URL});
+			if (status_codes.find(request.status_code) != status_codes.end())
+			{
+				++status_codes[request.status_code];
+			}
+			else
+			{
+				status_codes.insert(std::make_pair(request.status_code, 1));
+			}
+			++bound;
+		} while (bound != 10);
+
+		bound = 0;
+
+		m.lock();
+
+		for (const auto &entry : status_codes)
 		{
-			status_codes.insert(std::make_pair(request.status_code, 1));
+			success_responces_map.insert(std::make_pair(entry.first, entry.second));
 		}
-		++num_of_requets;
-	} while (num_of_requets != 10);
 
-	m.lock();
+		std::vector<cpr::Pair> payload_data;
+		for (const auto &entry : success_responces_map)
+		{
+			payload_data.push_back(cpr::Pair{std::to_string(entry.first), std::to_string(entry.second)});
+		}
+		cpr::Payload payload{payload_data.begin(), payload_data.end()};
+		cpr::Response post_to_masetr = cpr::Post(cpr::Url{"http://localhost:8080/data/"}, payload);
+		std::cout << post_to_masetr.status_code << std::endl;
 
-	for (const auto &entry : status_codes)
-	{
-		success_responces_map.insert(std::make_pair(entry.first, entry.second));
-	}
-
-	for (const auto &entry : success_responces_map)
-	{
-		std::cout << entry.first << " : " << entry.second << std::endl;
-	}
-
-	m.unlock();
-
-	std::cout << std::endl;
+		m.unlock();
+	} while (true);
 }

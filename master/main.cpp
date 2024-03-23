@@ -102,6 +102,15 @@ int main()
             get_data(db, stmt, data);
             return data.back(); });
 
+    CROW_ROUTE(app, "/connect/").methods("POST"_method)([]()
+                                                        { return "Pick me!"; });
+
+    CROW_ROUTE(app, "/data/").methods("POST"_method)([](const crow::request &req)
+                                                     {
+       std::string response_data = req.body;
+       std::cout << response_data << std::endl;
+       return response_data; });
+
     app.port(8080)
         .multithreaded()
         .run();
