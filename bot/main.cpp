@@ -15,26 +15,37 @@ int main(int argc, char *argv[])
 {
     const std::string path_to_cfg = "./data/config.cfg";
     std::map<std::string, std::string> config_map = parse_config(path_to_cfg);
+    std::string target = config_map["get_target"];
 
-    const std::string get_target = config_map["get_target"];
     const std::string num_of_threads = config_map["num_of_threads"];
+    const cpr::Response r = cpr::Get(cpr::Url{target});
+    std::string URL;
 
-    const cpr::Response r = cpr::Get(cpr::Url{get_target});
-
-    const std::string URL = r.text;
+    while (r.status_code == 0)
+    {
+        const cpr::Response r = cpr::Get(cpr::Url{target});
+        if (!r.text.empty())
+        {
+            std::cout << r.text << std::endl;
+            URL = r.text;
+            break;
+        }
+    }
 
     std::cout << "Terget: " << URL << std::endl
               << "Number of threads: " << num_of_threads << std::endl;
-    ;
 
     cpr::Response connect = cpr::Post(cpr::Url{"http://localhost:8080/connect/"});
-    do
+
+    while (true)
     {
         if (connect.text == "Pick me!")
         {
-            managind_threads(task_for_thread, std::stod(num_of_threads), URL);
+            break;
         }
-    } while (true);
+    }
+
+    managind_threads(task_for_thread, std::stod(num_of_threads), URL);
 
     return 0;
 }
