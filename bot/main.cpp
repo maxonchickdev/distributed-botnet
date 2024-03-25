@@ -19,16 +19,16 @@ int main(int argc, char *argv[])
     const std::string num_of_threads = config_map["num_of_threads"];
     const std::string connect = config_map["connect"];
     std::string get_target = config_map["get_target"];
+    cpr::Response connect_status = cpr::Post(cpr::Url{connect});
 
     do
     {
-        cpr::Response connect_status = cpr::Post(cpr::Url{connect});
-        if (connect_status.text == "Pick me!")
-        {
-            const cpr::Response target = cpr::Get(cpr::Url{get_target});
-            managind_threads(task_for_thread, std::stod(num_of_threads), target.text);
-        }
-    } while (true);
+        connect_status = cpr::Post(cpr::Url{connect});
+        std::cout << "Status code: " << connect_status.status_code;
+    } while (connect_status.text != "true");
+
+    const cpr::Response target = cpr::Get(cpr::Url{get_target});
+    managind_threads(task_for_thread, std::stod(num_of_threads), target.text);
 
     return 0;
 }

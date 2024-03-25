@@ -103,9 +103,9 @@ int main()
             return data.back(); });
 
     CROW_ROUTE(app, "/connect/").methods("POST"_method)([](const crow::request &req)
-                                                        {
-        std::cout << req.body << std::endl; 
-        return "Pick me!"; });
+                                                        { 
+            std::cout << req.body << std::endl;
+            return req.body; });
 
     CROW_ROUTE(app, "/data/").methods("POST"_method)([](const crow::request &req)
                                                      {

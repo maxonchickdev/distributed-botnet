@@ -3,7 +3,7 @@ import { Services } from './services/Services'
 
 export const App = () => {
   const [url, setUrl] = useState<string>('')
-  const [botsState, setBotsState] = useState<string>('')
+  const [botsState, setBotsState] = useState<string>('false')
   const pushUrl = async () => {
     const responseUrl = await Services.pushUrl(url)
     return responseUrl
