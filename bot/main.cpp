@@ -5,7 +5,10 @@
 #include <string>
 #include <mutex>
 #include <map>
+#include <chrono>
+#include <thread>
 #include <cpr/cpr.h>
+#include <unistd.h>
 
 #include "managing_threads.hpp"
 #include "task_for_thread.hpp"
@@ -19,16 +22,22 @@ int main(int argc, char *argv[])
     const std::string num_of_threads = config_map["num_of_threads"];
     const std::string connect = config_map["connect"];
     std::string get_target = config_map["get_target"];
-    cpr::Response connect_status = cpr::Post(cpr::Url{connect});
 
-    do
+    while (true)
     {
-        connect_status = cpr::Post(cpr::Url{connect});
-        std::cout << "Status code: " << connect_status.status_code;
-    } while (connect_status.text != "true");
-
-    const cpr::Response target = cpr::Get(cpr::Url{get_target});
-    managind_threads(task_for_thread, std::stod(num_of_threads), target.text);
+        cpr::Response connect_status = cpr::Get(cpr::Url{connect});
+        if (connect_status.text == "true")
+        {
+            const cpr::Response target = cpr::Get(cpr::Url{get_target});
+            std::cout << target.text << std::endl;
+            managind_threads(task_for_thread, std::stod(num_of_threads), target.text);
+        }
+        else if (connect_status.text == "false")
+        {
+            connect_status = cpr::Post(cpr::Url{connect});
+        }
+        sleep(5);
+    }
 
     return 0;
 }

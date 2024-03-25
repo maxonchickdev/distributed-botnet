@@ -77,14 +77,18 @@ int main()
     crow::App<crow::CORSHandler> app;
 
     auto &cors = app.get_middleware<crow::CORSHandler>();
+
+    // clang-format off
     cors
-        .global()
-        .headers("Origin", "Content-Type", "Accept", "*")
+      .global()
+        .headers("Access-Control-Allow-Origin")
         .methods("POST"_method, "GET"_method)
-        .prefix("/cors")
-        .origin("http://localhost:8080")
-        .prefix("/nocors")
+      .prefix("/cors")
+        .origin("http://localhost:8080/recive-bots-state/")
+      .prefix("/nocors")
         .ignore();
+    
+    std::string bots_state;
 
     CROW_ROUTE(app, "/").methods("GET"_method)([]()
                                                { return "Welcome to master structure!"; });
@@ -100,12 +104,18 @@ int main()
                                                           {
             std::vector<std::string> data;
             get_data(db, stmt, data);
+            std::cout << data.back() << std::endl;
             return data.back(); });
 
-    CROW_ROUTE(app, "/connect/").methods("POST"_method)([](const crow::request &req)
-                                                        { 
-            std::cout << req.body << std::endl;
-            return req.body; });
+    CROW_ROUTE(app, "/recive-bots-state/").methods("POST"_method)([&bots_state](const crow::request &req)
+                                                       {
+            bots_state = req.body;
+            std::cout << bots_state << std::endl;
+            return bots_state; });
+    
+    CROW_ROUTE(app, "/state-to-bot/").methods("GET"_method)([&bots_state]() {
+        return bots_state;
+    });
 
     CROW_ROUTE(app, "/data/").methods("POST"_method)([](const crow::request &req)
                                                      {
