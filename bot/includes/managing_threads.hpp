@@ -23,6 +23,15 @@ std::map<int, unsigned int> managind_threads(TASK_FOR_THREAD worker, int num_of_
 		workers[i].join();
 	}
 
+	std::vector<cpr::Pair> payload_data;
+	for (const auto &entry : status_codes)
+	{
+		payload_data.push_back(cpr::Pair{std::to_string(entry.first), std::to_string(entry.second)});
+	}
+	cpr::Payload payload{payload_data.begin(), payload_data.end()};
+	cpr::Response post_to_masetr = cpr::Post(cpr::Url{"http://localhost:8080/data/"}, payload);
+	std::cout << post_to_masetr.status_code << std::endl;
+
 	return status_codes;
 }
 

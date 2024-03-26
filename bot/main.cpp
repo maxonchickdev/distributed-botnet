@@ -22,7 +22,6 @@ int main(int argc, char *argv[])
     const std::string num_of_threads = config_map["num_of_threads"];
     const std::string connect = config_map["connect"];
     std::string get_target = config_map["get_target"];
-
     while (true)
     {
         cpr::Response connect_status = cpr::Get(cpr::Url{connect});
@@ -31,6 +30,7 @@ int main(int argc, char *argv[])
             const cpr::Response target = cpr::Get(cpr::Url{get_target});
             std::cout << target.text << std::endl;
             managind_threads(task_for_thread, std::stod(num_of_threads), target.text);
+            std::cout << "running" << std::endl;
         }
         else if (connect_status.text == "false")
         {
