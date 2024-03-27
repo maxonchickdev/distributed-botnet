@@ -5,6 +5,6 @@
 #include <string>
 #include <map>
 
-void task_for_thread(std::mutex &m, std::map<int, unsigned int> &success_responces_map, std::string URL);
+void task_for_thread(std::mutex &m, std::map<int, unsigned int> &success_responces_map, std::string URL, bool &status);
 
 #endif // TASK_FOR_THREAD_INCLUDE

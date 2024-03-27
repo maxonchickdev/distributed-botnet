@@ -11,16 +11,12 @@
 
 #include "parse_config.hpp"
 
-void task_for_thread(std::mutex &m, std::map<int, unsigned int> &success_responces_map, std::string URL)
+void task_for_thread(std::mutex &m, std::map<int, unsigned int> &success_responces_map, std::string URL, bool &status)
 {
-	const std::string path_to_cfg = "./data/config.cfg";
-	std::map<std::string, std::string> config_map = parse_config(path_to_cfg);
-	const std::string connect = config_map["connect"];
-	cpr::Response connect_status = cpr::Get(cpr::Url{connect});
-
 	std::map<int, unsigned int> status_codes;
-	while (connect_status.text == "true")
+	while (status != false)
 	{
+		std::cout << "Threads works" << std::endl;
 		cpr::Response request = cpr::Get(cpr::Url{URL});
 		if (status_codes.find(request.status_code) != status_codes.end())
 		{
@@ -30,10 +26,6 @@ void task_for_thread(std::mutex &m, std::map<int, unsigned int> &success_responc
 		{
 			status_codes.insert(std::make_pair(request.status_code, 1));
 		}
-
-		cpr::Response r = cpr::Get(cpr::Url{connect});
-		connect_status.text = r.text;
-		sleep(5);
 	}
 
 	m.lock();
