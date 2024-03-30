@@ -71,7 +71,7 @@ FetchContent_Declare(cpr GIT_REPOSITORY https://github.com/libcpr/cpr.git
 GIT_TAG 3b15fa82ea74739b574d705fea44959b58142eb8)
 FetchContent_MakeAvailable(cpr)
 
-target_link_libraries(${PROJECT_NAME} Boost::program_options Boost::system cpr::cpr)
+target_link_libraries(${PROJECT_NAME} PRIVATE Boost::program_options Boost::system cpr::cpr /Users/maxondevelop/Documents/ucu/aks/distributed-botnet/bot/libbot.dylib)
 
 target_include_directories(${PROJECT_NAME} PRIVATE includes)
 target_include_directories(${PROJECT_NAME} PRIVATE src)

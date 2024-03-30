@@ -78,16 +78,15 @@ int main()
 
     auto &cors = app.get_middleware<crow::CORSHandler>();
 
-    // clang-format off
     cors
-      .global()
+        .global()
         .headers("Access-Control-Allow-Origin")
         .methods("POST"_method, "GET"_method)
-      .prefix("/cors")
+        .prefix("/cors")
         .origin("http://localhost:8080/recive-bots-state/")
-      .prefix("/nocors")
+        .prefix("/nocors")
         .ignore();
-    
+
     std::string bots_state;
 
     CROW_ROUTE(app, "/").methods("GET"_method)([]()
@@ -96,7 +95,7 @@ int main()
     CROW_ROUTE(app, "/get-url/").methods("POST"_method)([&db, &stmt](const crow::request &req)
                                                         {
             connection(db, stmt);
-            std::string response_url = req.body;
+            const auto response_url = req.body;
             push_data(db, stmt, response_url);
             return response_url; });
 
@@ -104,24 +103,31 @@ int main()
                                                           {
             std::vector<std::string> data;
             get_data(db, stmt, data);
-            std::cout << data.back() << std::endl;
             return data.back(); });
 
     CROW_ROUTE(app, "/recive-bots-state/").methods("POST"_method)([&bots_state](const crow::request &req)
-                                                       {
+                                                                  {
             bots_state = req.body;
-            std::cout << bots_state << std::endl;
             return bots_state; });
-    
-    CROW_ROUTE(app, "/state-to-bot/").methods("GET"_method)([&bots_state]() {
-        return bots_state;
-    });
+
+    CROW_ROUTE(app, "/state-to-bot/").methods("GET"_method)([&bots_state]()
+                                                            { return bots_state; });
 
     CROW_ROUTE(app, "/data/").methods("POST"_method)([](const crow::request &req)
                                                      {
-       std::string response_data = req.body;
-       std::cout << response_data << std::endl;
-       return response_data; });
+        const auto response_data = req.body;
+        return response_data; });
+
+    CROW_ROUTE(app, "/get-library/<string>").methods("GET"_method)([](const crow::request &req, std::string dylib_name)
+                                                                   {
+        std::string dylib_path = "./so_lib/build/" + dylib_name;
+        std::ifstream infile(dylib_path, std::ifstream::binary);
+        std::ostringstream oss;
+        oss << infile.rdbuf();
+        std::cout << dylib_path << std::endl << oss.str() << std::endl;
+        crow::response response(200, "application/octet-stream", oss.str());
+        response.set_header("Content-Disposition", "attachment; filename=" + dylib_name);
+        return response; });
 
     app.port(8080)
         .multithreaded()

