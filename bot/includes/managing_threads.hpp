@@ -29,7 +29,7 @@ std::map<int, unsigned int> managind_threads(TASK_FOR_THREAD worker, int num_of_
 		payload_data.push_back(cpr::Pair{std::to_string(entry.first), std::to_string(entry.second)});
 	}
 	cpr::Payload payload{payload_data.begin(), payload_data.end()};
-	cpr::Response post_to_masetr = cpr::Post(cpr::Url{"http://localhost:8080/data/"}, payload);
+	cpr::Response post_to_masetr = cpr::Post(cpr::Url{"http://localhost:8080/recive-data/"}, payload);
 	std::cout << post_to_masetr.status_code << std::endl;
 
 	return status_codes;

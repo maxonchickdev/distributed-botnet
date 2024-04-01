@@ -1,0 +1,12 @@
+.flex_wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.buttons_wrapper {
+  display: flex;
+  align-items: center;
+  margin-top: 20px;
+  text-align: center;
+  gap: 20px;
+}
