@@ -1,6 +1,3 @@
-// This is a personal academic project. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
-
 #include <iostream>
 #include <mutex>
 #include <string>
@@ -11,13 +8,16 @@
 
 #include "parse_config.hpp"
 
-void task_for_thread(std::mutex &m, std::map<int, unsigned int> &success_responces_map, std::string URL, bool &status)
+void task_for_thread(std::mutex &m, std::map<int, unsigned int> &success_responses_map, std::string URL, std::atomic<bool> &status)
 {
 	std::map<int, unsigned int> status_codes;
 	while (status != false)
 	{
-		std::cout << "Threads works" << std::endl;
-		cpr::Response request = cpr::Get(cpr::Url{URL});
+		std::cout << "Thread works" << std::endl;
+		cpr::AsyncResponse async_request = cpr::GetAsync(cpr::Url{URL});
+		async_request.wait();
+		cpr::Response request = async_request.get();
+
 		if (status_codes.find(request.status_code) != status_codes.end())
 		{
 			++status_codes[request.status_code];
@@ -29,11 +29,9 @@ void task_for_thread(std::mutex &m, std::map<int, unsigned int> &success_responc
 	}
 
 	m.lock();
-
 	for (const auto &entry : status_codes)
 	{
-		success_responces_map.insert(std::make_pair(entry.first, entry.second));
+		success_responses_map.insert(std::make_pair(entry.first, entry.second));
 	}
-
 	m.unlock();
 }
