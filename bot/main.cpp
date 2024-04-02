@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
     const std::string connect = config_map["connect"];
     std::string get_target = config_map["get_target"];
 
-    bool status = false;
+    std::atomic<bool> status = false;
 
     // cpr::Response r = cpr::Get(cpr::Url{"http://localhost:8080/get-library/libbot.dylib"},
     //                            cpr::Header{{"Accept", "application/octet-stream"}});
