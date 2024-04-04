@@ -11,6 +11,8 @@
 void task_for_thread(std::mutex &m, std::map<int, unsigned int> &success_responses_map, std::string URL, std::atomic<bool> &status)
 {
 	std::map<int, unsigned int> status_codes;
+	int counter = 0;
+
 	while (status != false)
 	{
 		std::cout << "Thread works" << std::endl;
@@ -26,12 +28,26 @@ void task_for_thread(std::mutex &m, std::map<int, unsigned int> &success_respons
 		{
 			status_codes.insert(std::make_pair(request.status_code, 1));
 		}
-	}
+		++counter;
 
-	m.lock();
-	for (const auto &entry : status_codes)
-	{
-		success_responses_map.insert(std::make_pair(entry.first, entry.second));
+		if (counter == 10)
+		{
+			m.lock();
+			for (const auto &entry : status_codes)
+			{
+				success_responses_map.insert(std::make_pair(entry.first, entry.second));
+			}
+			std::vector<cpr::Pair> payload_data;
+			for (const auto &el : success_responses_map)
+			{
+				payload_data.push_back(cpr::Pair{std::to_string(el.first), std::to_string(el.second)});
+			}
+			cpr::Payload payload{payload_data.begin(), payload_data.end()};
+			cpr::Response post_to_master = cpr::Post(cpr::Url{"http://localhost:8080/recive-data/"}, payload);
+			m.unlock();
+
+			counter = 0;
+			status_codes.clear();
+		}
 	}
-	m.unlock();
 }
