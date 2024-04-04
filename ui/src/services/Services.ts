@@ -15,4 +15,10 @@ export const Services = {
     )
     return response.data
   },
+  async reciveStatusCodes() {
+    const response = await axios.get<string>(
+      'http://localhost:8080/getting-status-codes/'
+    )
+    return response.data
+  },
 }
