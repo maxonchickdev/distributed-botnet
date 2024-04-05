@@ -1,5 +1,6 @@
 import { Button, Input } from 'antd'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { io } from 'socket.io-client'
 import { MainLayout } from '../../Layouts/MainLayout'
 import { Services } from '../../services/Services'
 
@@ -32,6 +33,18 @@ export const Main = () => {
     await botsActivate('false')
   }
 
+  useEffect(() => {
+    const socket = io('http://localhost:8080/')
+    socket.on('connect', async () => {
+      const response = await Services.getData()
+      console.log(response)
+    })
+
+    return () => {
+      socket.disconnect()
+    }
+  }, [])
+
   return (
     <MainLayout>
       <div className='absolute top-1/2 left-1/2 translate-x-[-50%] translate-y-[-50%] max-w-[400px] w-[100%]'>
@@ -42,7 +55,7 @@ export const Main = () => {
           className='mb-3'
           // autoSize={{ minRows: 3, maxRows: 5 }}
         />
-        <Button type='primary' block className='mb-3'>
+        <Button type='primary' block className='mb-3' onClick={pushUrl}>
           Push
         </Button>
 

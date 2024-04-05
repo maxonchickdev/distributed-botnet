@@ -15,4 +15,10 @@ export const Services = {
     )
     return response.data
   },
+  async getData() {
+    const response = await axios.get<string>(
+      'http://localhost:8080/getting-data/'
+    )
+    return response.data
+  },
 }
