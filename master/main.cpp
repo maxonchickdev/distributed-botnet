@@ -65,27 +65,8 @@ int main()
         std::cout << response_data << std::endl;
         return getting_data; });
 
-    // CROW_WEBSOCKET_ROUTE(app, "/ws")
-    //     .onopen([&](crow::websocket::connection &conn)
-    //             { return "connected"; })
-    //     .onclose([&](crow::websocket::connection &conn, const std::string &reason)
-    //              { return "disconnected"; })
-    //     .onmessage([&](crow::websocket::connection &conn, const std::string &data, bool is_binary)
-    //                { return getting_data; });
-
     CROW_ROUTE(app, "/getting-data/").methods("GET"_method)([&]()
                                                             { return getting_data; });
-
-    // CROW_ROUTE(app, "/get-library/<string>").methods("GET"_method)([](const crow::request &req, std::string dylib_name)
-    //                                                                {
-    //     std::string dylib_path = "./so_lib/build/" + dylib_name;
-    //     std::ifstream infile(dylib_path, std::ifstream::binary);
-    //     std::ostringstream oss;
-    //     oss << infile.rdbuf();
-    //     std::cout << dylib_path << std::endl << oss.str() << std::endl;
-    //     crow::response response(200, "application/octet-stream", oss.str());
-    //     response.set_header("Content-Disposition", "attachment; filename=" + dylib_name);
-    //     return response; });
 
     app.port(8080)
         .multithreaded()

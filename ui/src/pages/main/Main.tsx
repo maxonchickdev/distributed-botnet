@@ -1,6 +1,5 @@
 import { Button, Input } from 'antd'
-import { useEffect, useState } from 'react'
-import { io } from 'socket.io-client'
+import { useState } from 'react'
 import { MainLayout } from '../../Layouts/MainLayout'
 import { Services } from '../../services/Services'
 
@@ -32,18 +31,6 @@ export const Main = () => {
     setBotsState('false')
     await botsActivate('false')
   }
-
-  useEffect(() => {
-    const socket = io('http://localhost:8080/')
-    socket.on('connect', async () => {
-      const response = await Services.getData()
-      console.log(response)
-    })
-
-    return () => {
-      socket.disconnect()
-    }
-  }, [])
 
   return (
     <MainLayout>

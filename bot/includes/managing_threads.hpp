@@ -5,9 +5,11 @@
 #include <thread>
 #include <string>
 #include <map>
+#include <unistd.h>
+#include <cpr/cpr.h>
 
 template <typename TASK_FOR_THREAD>
-std::map<int, unsigned int> managind_threads(TASK_FOR_THREAD worker, int num_of_workers, std::string URL, std::atomic<bool> &status)
+std::map<int, unsigned int> managind_threads(TASK_FOR_THREAD worker, int num_of_workers, cpr::Url URL, std::atomic<bool> &status)
 {
 	std::map<int, unsigned int> status_codes;
 	std::mutex m;
