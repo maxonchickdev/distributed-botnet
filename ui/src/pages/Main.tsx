@@ -1,7 +1,7 @@
 import { Button, Input } from 'antd'
 import { useEffect, useState } from 'react'
-import { MainLayout } from '../../Layouts/MainLayout'
-import { Services } from '../../services/Services'
+import { MainLayout } from '../Layouts/MainLayout'
+import { Services } from '../services/Services'
 
 const { TextArea } = Input
 
@@ -10,10 +10,11 @@ export const Main = () => {
   const [botsState, setBotsState] = useState<string>('false')
   const [statusCodes, setStatusCodes] = useState<string>('')
   const [pool, setPool] = useState<boolean>(false)
+  const [testState, setTestState] = useState<boolean>(false)
 
   const pushUrl = async () => {
     const responseUrl = await Services.pushUrl(url)
-    setUrl('')
+    setTestState(true)
     return responseUrl
   }
 
@@ -55,13 +56,18 @@ export const Main = () => {
           onChange={e => setUrl(e.target.value)}
           placeholder='Enter target URL'
           className='mb-3'
+          disabled={testState}
         />
         <Button type='primary' block className='mb-3' onClick={pushUrl}>
           Push
         </Button>
         <div className='flex justify-between'>
-          <Button onClick={() => handleClick('true')}>Run bots</Button>
-          <Button onClick={() => handleClick('false')}>Stop bots</Button>
+          <Button onClick={() => handleClick('true')} disabled={pool}>
+            Run bots
+          </Button>
+          <Button onClick={() => handleClick('false')} disabled={!pool}>
+            Stop bots
+          </Button>
         </div>
       </div>
       {statusCodes}

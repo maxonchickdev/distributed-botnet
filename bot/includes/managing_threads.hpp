@@ -9,7 +9,7 @@
 #include <cpr/cpr.h>
 
 template <typename TASK_FOR_THREAD>
-std::map<int, unsigned int> managind_threads(TASK_FOR_THREAD worker, int num_of_workers, cpr::Url URL, std::atomic<bool> &status)
+std::map<int, unsigned int> managind_threads(TASK_FOR_THREAD worker, int num_of_workers, cpr::Url URL, std::atomic<bool> &status, const unsigned int requests_per_post)
 {
 	std::map<int, unsigned int> status_codes;
 	std::mutex m;
@@ -17,7 +17,7 @@ std::map<int, unsigned int> managind_threads(TASK_FOR_THREAD worker, int num_of_
 
 	for (int i = 0; i < num_of_workers; ++i)
 	{
-		workers.emplace_back(worker, std::ref(m), std::ref(status_codes), std::ref(URL), std::ref(status));
+		workers.emplace_back(worker, std::ref(m), std::ref(status_codes), std::ref(URL), std::ref(status), std::ref(requests_per_post));
 	}
 
 	for (int i = 0; i < workers.size(); ++i)

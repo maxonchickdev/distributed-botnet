@@ -26,7 +26,9 @@ include_directories(${SQLite3_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} PRIVATE ${SQLite3_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} PRIVATE cpr::cpr)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE Crow)
+find_package(Threads REQUIRED)
+
+target_link_libraries(${PROJECT_NAME} PRIVATE Crow Threads::Threads)
 
 target_include_directories(${PROJECT_NAME} PRIVATE includes)
 target_include_directories(${PROJECT_NAME} PRIVATE src)
