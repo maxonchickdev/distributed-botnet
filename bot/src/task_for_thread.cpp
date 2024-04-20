@@ -1,20 +1,22 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
+
 #include <iostream>
 #include <mutex>
 #include <string>
 #include <map>
 #include <vector>
 #include <cpr/cpr.h>
-#include <unistd.h>
 
 #include "parse_config.hpp"
 
-void task_for_thread(std::mutex &m, std::map<int, unsigned int> &success_responses_map, cpr::Url URL, std::atomic<bool> &status)
+void task_for_thread(std::mutex &m, std::map<int, unsigned int> &success_responses_map, cpr::Url URL, std::atomic<bool> &status, const unsigned int num_of_req_per_send)
 {
 
 	while (status != false)
 	{
-		std::vector<cpr::AsyncResponse> container{};
-		for (int i = 0; i < 100; ++i)
+		std::vector<cpr::AsyncResponse> container;
+		for (unsigned int i = 0; i < num_of_req_per_send; ++i)
 		{
 			container.emplace_back(cpr::GetAsync(URL, cpr::Parameters{{"i", std::to_string(i)}}));
 		}
@@ -28,7 +30,6 @@ void task_for_thread(std::mutex &m, std::map<int, unsigned int> &success_respons
 			else
 				++success_responses_map[r.status_code];
 		}
-		std::cout << container.size() << std::endl;
 		std::vector<cpr::Pair> payload_data;
 		for (const auto &el : success_responses_map)
 		{
