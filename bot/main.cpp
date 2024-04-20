@@ -28,14 +28,14 @@ int main(int argc, char *argv[])
     {
         cpr::Response target = cpr::Get(cpr::Url{get_target});
         cpr::Response connect_status = cpr::Get(cpr::Url{connect});
-        std::cout << target.text << " : " << connect_status.text << std::endl;
+        std::cout << "Target URL: " << target.text << std::endl
+                  << "Connect status:" << connect_status.text << std::endl;
         cpr::Url URL = cpr::Url{target.text};
         if (connect_status.text == "true")
         {
             std::cout << "Connected" << std::endl;
             status = true;
             cpr::Response target = cpr::Get(cpr::Url{get_target});
-            std::cout << target.text << std::endl;
             std::thread t = std::thread([&]()
                                         { managind_threads(task_for_thread, std::stoi(num_of_threads), URL, std::ref(status)); });
             while (connect_status.text != "false")

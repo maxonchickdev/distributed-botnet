@@ -1,5 +1,5 @@
 import { Button, Input } from 'antd'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { MainLayout } from '../../Layouts/MainLayout'
 import { Services } from '../../services/Services'
 
@@ -8,6 +8,8 @@ const { TextArea } = Input
 export const Main = () => {
   const [url, setUrl] = useState<string>('')
   const [botsState, setBotsState] = useState<string>('false')
+  const [statusCodes, setStatusCodes] = useState<string>('')
+  const [pool, setPool] = useState<boolean>(false)
 
   const pushUrl = async () => {
     const responseUrl = await Services.pushUrl(url)
@@ -20,17 +22,30 @@ export const Main = () => {
     return requestStart
   }
 
-  console.log(botsState)
-
-  const handleStartClick = async () => {
-    setBotsState('true')
-    await botsActivate('true')
+  const handleClick = async (state: string) => {
+    setBotsState(state)
+    await botsActivate(state)
+    if (state === 'true') {
+      setPool(true)
+    } else {
+      setPool(false)
+    }
   }
 
-  const handleStopClick = async () => {
-    setBotsState('false')
-    await botsActivate('false')
-  }
+  useEffect(() => {
+    console.log('pool', pool)
+    if (pool) {
+      const interval = setInterval(async () => {
+        const response = await Services.getData()
+        setStatusCodes(response)
+        console.log(botsState)
+      }, 1000)
+
+      return () => {
+        clearInterval(interval)
+      }
+    }
+  }, [pool])
 
   return (
     <MainLayout>
@@ -40,17 +55,16 @@ export const Main = () => {
           onChange={e => setUrl(e.target.value)}
           placeholder='Enter target URL'
           className='mb-3'
-          // autoSize={{ minRows: 3, maxRows: 5 }}
         />
         <Button type='primary' block className='mb-3' onClick={pushUrl}>
           Push
         </Button>
-
         <div className='flex justify-between'>
-          <Button onClick={handleStartClick}>Run bots</Button>
-          <Button onClick={handleStopClick}>Stop bots</Button>
+          <Button onClick={() => handleClick('true')}>Run bots</Button>
+          <Button onClick={() => handleClick('false')}>Stop bots</Button>
         </div>
       </div>
+      {statusCodes}
       {/* <Plot /> */}
     </MainLayout>
   )
