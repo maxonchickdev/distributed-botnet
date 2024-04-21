@@ -37,7 +37,6 @@ void task_for_thread(std::mutex &m, std::map<int, unsigned int> &success_respons
 		}
 		cpr::Payload payload{payload_data.begin(), payload_data.end()};
 		cpr::Response post_to_master = cpr::Post(cpr::Url{"http://localhost:8080/recive-data/"}, payload);
-
 		success_responses_map.clear();
 		m.unlock();
 	}
