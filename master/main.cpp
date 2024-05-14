@@ -9,22 +9,31 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <mutex>
+#include <atomic>
 
 #include "db_methods.hpp"
+#include "status_codes_db_methods.hpp"
 
 int main()
 {
+    std::mutex m;
     sqlite3 *db;
     sqlite3_stmt *stmt;
     const char *path_to_db = "./data/demo.db";
+
+    sqlite3 *db_codes;
+    sqlite3_stmt *stmt_codes;
+    const char *path_to_res_db = "./data/res.db";
+
     std::vector<std::string> data;
+    std::vector<std::string> res_data;
     std::string bots_state;
+    // std::string getting_data;
 
     crow::App<crow::CORSHandler> app;
 
     auto &cors = app.get_middleware<crow::CORSHandler>();
-
-    std::string getting_data;
 
     cors
         .global()
@@ -60,13 +69,22 @@ int main()
 
     CROW_ROUTE(app, "/recive-data/").methods("POST"_method)([&](const crow::request &req)
                                                             {
+        __connect_to_db_status_codes(db_codes, stmt_codes, path_to_res_db);
+        m.lock();
         const auto response_data = req.body;
-        getting_data = response_data;
         std::cout << response_data << std::endl;
-        return getting_data; });
+        // getting_data = response_data;
+        // size_t index = getting_data.find('&');
+        // if(index != std::string::npos) std::cout << index << std::endl;
+        __push_to_db_status_codes(db_codes, stmt_codes, response_data, path_to_res_db);
+        m.unlock();
+        // std::cout << getting_data << std::endl;
+        return "Data received"; });
 
     CROW_ROUTE(app, "/getting-data/").methods("GET"_method)([&]()
-                                                            { return getting_data; });
+                                                            {
+        __get_from_db_status_codes(db_codes, stmt_codes, res_data, path_to_res_db);
+        return res_data.back(); });
 
     app.port(8080)
         .multithreaded()

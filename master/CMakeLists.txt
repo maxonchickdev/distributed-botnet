@@ -9,7 +9,7 @@ if (NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE Release)
 endif ()
 
-add_executable(${PROJECT_NAME} main.cpp src/db_methods.cpp includes/db_methods.hpp)
+add_executable(${PROJECT_NAME} main.cpp src/db_methods.cpp includes/db_methods.hpp src/status_codes_db_methods.cpp includes/status_codes_db_methods.hpp)
 
 
 include(FetchContent)

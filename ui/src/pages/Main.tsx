@@ -2,13 +2,14 @@ import { Button, Input } from 'antd'
 import { useEffect, useState } from 'react'
 import { MainLayout } from '../Layouts/MainLayout'
 import { Services } from '../services/Services'
+import Plot from './Plot'
 
 const { TextArea } = Input
 
 export const Main = () => {
   const [url, setUrl] = useState<string>('')
   const [botsState, setBotsState] = useState<string>('false')
-  const [statusCodes, setStatusCodes] = useState<string>('')
+  const [statusCodes, setStatusCodes] = useState([])
   const [botsStart, setBotsStart] = useState<boolean>(false)
   const [botsStop, setBotsStop] = useState<boolean>(true)
   const [area, setArea] = useState<boolean>(false)
@@ -46,12 +47,16 @@ export const Main = () => {
   }
 
   useEffect(() => {
-    console.log('pool', botsStart)
+    const responseParser = (response: string) => {
+      return response.split('&').map(pair => pair.split('='))
+    }
     if (botsStart === false && pool === true) {
       const interval = setInterval(async () => {
         const response = await Services.getData()
-        setStatusCodes(response)
-        console.log(botsState)
+        setStatusCodes(prevStatusCodes => [
+          ...prevStatusCodes,
+          ...responseParser(response),
+        ])
       }, 1000)
 
       return () => {
@@ -89,7 +94,7 @@ export const Main = () => {
         </div>
       </div>
       {statusCodes}
-      {/* <Plot /> */}
+      <Plot statusCodes={statusCodes} />
     </MainLayout>
   )
 }
